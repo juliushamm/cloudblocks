@@ -32,7 +32,7 @@ export function Sidebar(){
           draggable
           onDragStart={(e) => e.dataTransfer.setData('text/plain', s.type)}
           className="mx-1.5 mb-0.5 px-2.5 py-1 rounded text-[9px] font-mono cursor-grab"
-          style={{ background: 'var(--cb-bg-elevated)', border: '1px solid #222', color: 'var(--cb-text-secondary)' }}
+          style={{ background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', color: 'var(--cb-text-secondary)' }}
         >
           ⬡ {s.label}
         </div>
@@ -49,7 +49,7 @@ export function Sidebar(){
           className="mx-1.5 mb-0.5 px-2.5 py-1 rounded text-[9px] font-mono cursor-pointer"
           style={{
             background: view === v ? 'var(--cb-bg-elevated)' : 'transparent',
-            border: `1px solid ${view === v ? '#64b5f6' : '#222'}`,
+            border: `1px solid ${view === v ? '#64b5f6' : 'var(--cb-border)'}`,
             color: view === v ? '#64b5f6' : 'var(--cb-text-secondary)',
           }}
         >

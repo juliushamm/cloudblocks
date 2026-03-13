@@ -184,11 +184,11 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
         if (cloudNode) onNodeContextMenu(cloudNode, event.clientX, event.clientY)
       }}
       fitView
-      style={{ background: '#080c14' }}
+      style={{ background: 'var(--cb-canvas-bg)' }}
     >
-      <Background color="#1a1a2e" gap={20} />
+      <Background color="var(--cb-canvas-grid)" gap={20} />
       <MiniMap
-        style={{ background: '#0d1320', border: '1px solid #1e2d40' }}
+        style={{ background: 'var(--cb-minimap-bg)', border: '1px solid var(--cb-minimap-border)' }}
         nodeColor="#FF9900"
       />
     </ReactFlow>

@@ -30,22 +30,22 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
     <div className="relative flex-1 h-full" onContextMenu={handleContextMenu}>
       {/* Toolbar */}
       <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-2 py-1 rounded-md"
-           style={{ background: '#0d1320', border: '1px solid #1e2d40' }}>
+           style={{ background: 'var(--cb-minimap-bg)', border: '1px solid var(--cb-border-strong)' }}>
         <button
           onClick={onScan}
           disabled={scanStatus === 'scanning'}
-          style={{ ...btnBase, background: '#1a2332', border: '1px solid #FF9900', color: '#FF9900', opacity: scanStatus === 'scanning' ? 0.5 : 1 }}
+          style={{ ...btnBase, background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-accent)', color: 'var(--cb-accent)', opacity: scanStatus === 'scanning' ? 0.5 : 1 }}
         >
           {scanStatus === 'scanning' ? '⟳ Scanning…' : '⟳ Scan'}
         </button>
 
         <div className="w-px h-3.5 bg-gray-700" />
 
-        <button onClick={() => fitView({ duration: 300 })} style={{ ...btnBase, background: '#111', border: '1px solid #333', color: '#aaa' }}>
+        <button onClick={() => fitView({ duration: 300 })} style={{ ...btnBase, background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', color: 'var(--cb-text-secondary)' }}>
           ⊞ Fit
         </button>
-        <button onClick={() => zoomIn()}  style={{ ...btnBase, background: '#111', border: '1px solid #333', color: '#aaa' }}>+</button>
-        <button onClick={() => zoomOut()} style={{ ...btnBase, background: '#111', border: '1px solid #333', color: '#aaa' }}>−</button>
+        <button onClick={() => zoomIn()}  style={{ ...btnBase, background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', color: 'var(--cb-text-secondary)' }}>+</button>
+        <button onClick={() => zoomOut()} style={{ ...btnBase, background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', color: 'var(--cb-text-secondary)' }}>−</button>
 
         <div className="w-px h-3.5 bg-gray-700" />
 
@@ -55,8 +55,8 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
             onClick={() => setView(v)}
             style={{
               ...btnBase,
-              background: view === v ? '#1a2332' : 'transparent',
-              border: `1px solid ${view === v ? '#64b5f6' : '#333'}`,
+              background: view === v ? 'var(--cb-bg-elevated)' : 'transparent',
+              border: `1px solid ${view === v ? '#64b5f6' : 'var(--cb-border)'}`,
               color: view === v ? '#64b5f6' : '#666',
             }}
           >

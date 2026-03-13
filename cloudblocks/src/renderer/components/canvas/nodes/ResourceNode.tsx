@@ -53,7 +53,7 @@ export function ResourceNode({ data, selected }: NodeProps) {
       data-selected={selected}
       className="relative rounded"
       style={{
-        background:  '#0d1117',
+        background:  'var(--cb-bg-panel)',
         border:      `${selected ? '2px' : '1px'} solid ${borderColor}`,
         boxShadow:   selected ? `0 0 10px ${borderColor}55` : 'none',
         fontFamily:  'monospace',

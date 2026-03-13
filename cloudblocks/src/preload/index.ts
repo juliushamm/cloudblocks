@@ -33,6 +33,8 @@ contextBridge.exposeInMainWorld('cloudblocks', {
   getSettings: () => ipcRenderer.invoke(IPC.SETTINGS_GET),
   setSettings: (s: import('../renderer/types/cloud').Settings) => ipcRenderer.invoke(IPC.SETTINGS_SET, s),
 
+  getThemeOverrides: () => ipcRenderer.invoke(IPC.THEME_OVERRIDES),
+
   // CLI — renderer sends pre-built string[][] argv arrays
   runCli: (commands: string[][]) => ipcRenderer.invoke(IPC.CLI_RUN, commands),
   cancelCli: () => ipcRenderer.send(IPC.CLI_CANCEL),

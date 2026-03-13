@@ -65,6 +65,16 @@ export function registerHandlers(win: BrowserWindow): void {
     }
   })
 
+  ipcMain.handle(IPC.THEME_OVERRIDES, () => {
+    const file = path.join(app.getPath('userData'), 'theme.json')
+    try {
+      const raw = fs.readFileSync(file, 'utf-8')
+      return JSON.parse(raw) as Record<string, string>
+    } catch {
+      return {}
+    }
+  })
+
   // Cancel in-flight command (fire-and-forget, no return value needed)
   ipcMain.on(IPC.CLI_CANCEL, () => {
     cliEngine?.cancel()

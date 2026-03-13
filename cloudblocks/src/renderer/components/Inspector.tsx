@@ -19,15 +19,15 @@ export function Inspector({ onDelete, onEdit, onQuickAction }: InspectorProps){
   return (
     <div
       className="w-44 flex-shrink-0 p-2 overflow-y-auto"
-      style={{ background: '#0d1117', borderLeft: '1px solid #1e2d40', fontFamily: 'monospace' }}
+      style={{ background: 'var(--cb-bg-panel)', borderLeft: '1px solid var(--cb-border-strong)', fontFamily: 'monospace' }}
     >
       {!node ? (
-        <div className="text-[9px] text-center mt-8" style={{ color: '#555' }}>
+        <div className="text-[9px] text-center mt-8" style={{ color: 'var(--cb-text-muted)' }}>
           Click a resource to inspect
         </div>
       ) : (
         <>
-          <div className="text-[9px] font-bold mb-2 pb-1" style={{ color: '#FF9900', borderBottom: '1px solid #1e2d40' }}>
+          <div className="text-[9px] font-bold mb-2 pb-1" style={{ color: 'var(--cb-accent)', borderBottom: '1px solid var(--cb-border-strong)' }}>
             {node.type.toUpperCase()}  ·  Selected
           </div>
 
@@ -37,13 +37,13 @@ export function Inspector({ onDelete, onEdit, onQuickAction }: InspectorProps){
             { key: 'REGION', val: node.region },
           ].map(({ key, val }) => (
             <div key={key} className="mb-2">
-              <div className="text-[8px] mb-0.5" style={{ color: '#555' }}>{key}</div>
-              <div className="text-[9px] break-all" style={{ color: '#eee' }}>{val}</div>
+              <div className="text-[8px] mb-0.5" style={{ color: 'var(--cb-text-muted)' }}>{key}</div>
+              <div className="text-[9px] break-all" style={{ color: 'var(--cb-text-primary)' }}>{val}</div>
             </div>
           ))}
 
           <div className="mb-2">
-            <div className="text-[8px] mb-0.5" style={{ color: '#555' }}>STATE</div>
+            <div className="text-[8px] mb-0.5" style={{ color: 'var(--cb-text-muted)' }}>STATE</div>
             <div className="flex items-center gap-1">
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_COLORS[node.status] ?? '#666' }} />
               <span className="text-[9px]" style={{ color: STATUS_COLORS[node.status] ?? '#666' }}>{node.status}</span>
@@ -52,13 +52,13 @@ export function Inspector({ onDelete, onEdit, onQuickAction }: InspectorProps){
 
           {Object.entries(node.metadata).length > 0 && (
             <div>
-              <div className="text-[8px] mb-1 mt-2" style={{ color: '#555', borderTop: '1px solid #1e2d40', paddingTop: '6px' }}>
+              <div className="text-[8px] mb-1 mt-2" style={{ color: 'var(--cb-text-muted)', borderTop: '1px solid var(--cb-border-strong)', paddingTop: '6px' }}>
                 METADATA
               </div>
               {Object.entries(node.metadata).slice(0, 6).map(([k, v]) => (
                 <div key={k} className="mb-1.5">
-                  <div className="text-[7px]" style={{ color: '#555' }}>{k}</div>
-                  <div className="text-[8px] break-all" style={{ color: '#aaa' }}>{String(v ?? '—')}</div>
+                  <div className="text-[7px]" style={{ color: 'var(--cb-text-muted)' }}>{k}</div>
+                  <div className="text-[8px] break-all" style={{ color: 'var(--cb-text-secondary)' }}>{String(v ?? '—')}</div>
                 </div>
               ))}
             </div>
@@ -67,13 +67,13 @@ export function Inspector({ onDelete, onEdit, onQuickAction }: InspectorProps){
           <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
             <button
               onClick={() => onEdit(node)}
-              style={{ flex: 1, background: '#1a2332', border: '1px solid #64b5f6', borderRadius: 2, padding: '3px 0', color: '#64b5f6', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}
+              style={{ flex: 1, background: 'var(--cb-bg-elevated)', border: '1px solid #64b5f6', borderRadius: 2, padding: '3px 0', color: '#64b5f6', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}
             >
               ✎ Edit
             </button>
             <button
               onClick={() => onDelete(node)}
-              style={{ flex: 1, background: '#1a2332', border: '1px solid #ff5f57', borderRadius: 2, padding: '3px 0', color: '#ff5f57', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}
+              style={{ flex: 1, background: 'var(--cb-bg-elevated)', border: '1px solid #ff5f57', borderRadius: 2, padding: '3px 0', color: '#ff5f57', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}
             >
               ✕ Delete
             </button>
@@ -81,22 +81,22 @@ export function Inspector({ onDelete, onEdit, onQuickAction }: InspectorProps){
 
           {(node.type === 'ec2' || node.type === 'rds') && (
             <div style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 8, color: '#555', textTransform: 'uppercase', marginBottom: 4 }}>Quick actions</div>
+              <div style={{ fontSize: 8, color: 'var(--cb-text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Quick actions</div>
               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {node.status !== 'stopped' && (
                   <button onClick={() => onQuickAction(node, 'stop')}
-                    style={{ background: '#1a2332', border: '1px solid #febc2e', borderRadius: 2, padding: '2px 8px', color: '#febc2e', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
+                    style={{ background: 'var(--cb-bg-elevated)', border: '1px solid #febc2e', borderRadius: 2, padding: '2px 8px', color: '#febc2e', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
                     Stop
                   </button>
                 )}
                 {node.status === 'stopped' && (
                   <button onClick={() => onQuickAction(node, 'start')}
-                    style={{ background: '#1a2332', border: '1px solid #28c840', borderRadius: 2, padding: '2px 8px', color: '#28c840', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
+                    style={{ background: 'var(--cb-bg-elevated)', border: '1px solid #28c840', borderRadius: 2, padding: '2px 8px', color: '#28c840', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
                     Start
                   </button>
                 )}
                 <button onClick={() => onQuickAction(node, 'reboot')}
-                  style={{ background: '#1a2332', border: '1px solid #64b5f6', borderRadius: 2, padding: '2px 8px', color: '#64b5f6', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
+                  style={{ background: 'var(--cb-bg-elevated)', border: '1px solid #64b5f6', borderRadius: 2, padding: '2px 8px', color: '#64b5f6', fontFamily: 'monospace', fontSize: 9, cursor: 'pointer' }}>
                   Reboot
                 </button>
               </div>

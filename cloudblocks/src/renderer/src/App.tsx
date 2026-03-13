@@ -71,11 +71,11 @@ export default function App(){
     setNodeMenu({ node, x, y })
   }
 
-  if (profiles === null) return <div style={{ background: '#080c14', height: '100vh' }} />
+  if (profiles === null) return <div style={{ background: 'var(--cb-bg-app)', height: '100vh' }} />
   if (profiles.length === 0) return <Onboarding />
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden" style={{ background: '#080c14' }}>
+    <div className="flex flex-col h-screen w-screen overflow-hidden" style={{ background: 'var(--cb-bg-app)' }}>
       <TitleBar onSettingsOpen={() => setSettingsOpen(true)} />
       {errorMessage && <ErrorBanner message={errorMessage} onDismiss={() => setError(null)} />}
       <div className="flex flex-1 overflow-hidden">

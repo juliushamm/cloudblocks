@@ -134,7 +134,7 @@ export function CreateModal(){
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 500,
   }
   const modalStyle: React.CSSProperties = {
-    background: '#0d1117', border: '1px solid #FF9900', borderRadius: '6px',
+    background: 'var(--cb-bg-panel)', border: '1px solid var(--cb-accent)', borderRadius: '6px',
     padding: '16px', width: '420px', maxHeight: '80vh', overflowY: 'auto',
     fontFamily: 'monospace', boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
   }
@@ -142,7 +142,7 @@ export function CreateModal(){
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
-        <div style={{ color: '#FF9900', fontSize: '12px', fontWeight: 'bold', marginBottom: '14px', borderBottom: '1px solid #1e2d40', paddingBottom: '8px' }}>
+        <div style={{ color: 'var(--cb-accent)', fontSize: '12px', fontWeight: 'bold', marginBottom: '14px', borderBottom: '1px solid var(--cb-border-strong)', paddingBottom: '8px' }}>
           {TITLES[activeCreate.resource] ?? 'New Resource'}
         </div>
 
@@ -154,10 +154,10 @@ export function CreateModal(){
         {activeCreate.resource === 'lambda' && <LambdaForm onChange={handleChange} showErrors={showErrors} />}
         {activeCreate.resource === 'alb'    && <AlbForm    onChange={handleChange} showErrors={showErrors} />}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '10px', borderTop: '1px solid #1e2d40' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '10px', borderTop: '1px solid var(--cb-border-strong)' }}>
           <button
             onClick={handleCancel}
-            style={{ background: '#1a2332', border: '1px solid #30363d', borderRadius: '3px', color: '#aaa', cursor: 'pointer', fontSize: '10px', padding: '4px 10px', fontFamily: 'monospace' }}
+            style={{ background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', borderRadius: '3px', color: 'var(--cb-text-secondary)', cursor: 'pointer', fontSize: '10px', padding: '4px 10px', fontFamily: 'monospace' }}
           >
             Cancel
           </button>

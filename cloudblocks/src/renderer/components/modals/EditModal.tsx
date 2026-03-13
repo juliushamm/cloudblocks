@@ -69,7 +69,7 @@ export default function EditModal({ node, onClose }: EditModalProps) {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200,
   }
   const modal: React.CSSProperties = {
-    background: '#0d1117', border: `1px solid #FF9900`, borderRadius: 8,
+    background: 'var(--cb-bg-panel)', border: `1px solid var(--cb-accent)`, borderRadius: 8,
     padding: 20, width: 360, maxHeight: '80vh', overflowY: 'auto',
     fontFamily: 'monospace',
   }
@@ -77,7 +77,7 @@ export default function EditModal({ node, onClose }: EditModalProps) {
   return (
     <div style={overlay} onClick={e => e.target === e.currentTarget && !isRunning && onClose()}>
       <div style={modal}>
-        <div style={{ color: '#FF9900', fontWeight: 'bold', fontSize: 13, marginBottom: 12, borderBottom: '1px solid #1e2d40', paddingBottom: 8 }}>
+        <div style={{ color: 'var(--cb-accent)', fontWeight: 'bold', fontSize: 13, marginBottom: 12, borderBottom: '1px solid var(--cb-border-strong)', paddingBottom: 8 }}>
           Edit {RESOURCE_LABELS[node.type] ?? node.type}
         </div>
 
@@ -93,7 +93,7 @@ export default function EditModal({ node, onClose }: EditModalProps) {
           <button
             disabled={isRunning}
             onClick={onClose}
-            style={{ background: '#1a2332', border: '1px solid #30363d', borderRadius: 3, padding: '4px 16px', color: '#aaa', fontFamily: 'monospace', fontSize: 11, cursor: 'pointer' }}
+            style={{ background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', borderRadius: 3, padding: '4px 16px', color: 'var(--cb-text-secondary)', fontFamily: 'monospace', fontSize: 11, cursor: 'pointer' }}
           >
             Cancel
           </button>

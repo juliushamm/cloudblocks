@@ -29,20 +29,20 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200,
   }
   const panel: React.CSSProperties = {
-    background: '#0d1117', border: '1px solid #30363d', borderRadius: 8,
-    padding: 24, width: 400, fontFamily: 'monospace', color: '#eee',
+    background: 'var(--cb-bg-panel)', border: '1px solid var(--cb-border)', borderRadius: 8,
+    padding: 24, width: 400, fontFamily: 'monospace', color: 'var(--cb-text-primary)',
   }
-  const label: React.CSSProperties = { fontSize: 10, color: '#aaa', textTransform: 'uppercase', marginBottom: 4 }
+  const label: React.CSSProperties = { fontSize: 10, color: 'var(--cb-text-secondary)', textTransform: 'uppercase', marginBottom: 4 }
   const selectStyle: React.CSSProperties = {
-    width: '100%', background: '#060d14', border: '1px solid #30363d',
-    borderRadius: 3, padding: '4px 8px', color: '#eee', fontFamily: 'monospace', fontSize: 11,
+    width: '100%', background: 'var(--cb-bg-panel)', border: '1px solid var(--cb-border)',
+    borderRadius: 3, padding: '4px 8px', color: 'var(--cb-text-primary)', fontFamily: 'monospace', fontSize: 11,
     marginBottom: 16,
   }
 
   return (
     <div style={overlay} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={panel}>
-        <div style={{ fontSize: 13, fontWeight: 'bold', color: '#FF9900', marginBottom: 20, borderBottom: '1px solid #1e2d40', paddingBottom: 8 }}>
+        <div style={{ fontSize: 13, fontWeight: 'bold', color: 'var(--cb-accent)', marginBottom: 20, borderBottom: '1px solid var(--cb-border-strong)', paddingBottom: 8 }}>
           Settings
         </div>
 
@@ -102,7 +102,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button
             onClick={onClose}
-            style={{ background: '#1a2332', border: '1px solid #30363d', borderRadius: 3, padding: '4px 16px', color: '#aaa', fontFamily: 'monospace', fontSize: 11, cursor: 'pointer' }}
+            style={{ background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', borderRadius: 3, padding: '4px 16px', color: 'var(--cb-text-secondary)', fontFamily: 'monospace', fontSize: 11, cursor: 'pointer' }}
           >
             Cancel
           </button>

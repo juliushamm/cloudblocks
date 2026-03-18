@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import { useUIStore } from '../store/ui'
+import { useCloudStore } from '../store/cloud'
 import type { NodeType } from '../types/cloud'
 
 const SERVICES: { type: NodeType; label: string }[] = [
@@ -15,6 +17,15 @@ const SERVICES: { type: NodeType; label: string }[] = [
 export function Sidebar(){
   const view    = useUIStore((s) => s.view)
   const setView = useUIStore((s) => s.setView)
+  const nodes   = useCloudStore((s) => s.nodes)
+
+  const counts = useMemo(
+    () => nodes.reduce<Record<string, number>>(
+      (acc, n) => ({ ...acc, [n.type]: (acc[n.type] ?? 0) + 1 }),
+      {},
+    ),
+    [nodes],
+  )
 
   return (
     <div
@@ -25,18 +36,45 @@ export function Sidebar(){
         Services
       </div>
 
-      {SERVICES.map((s) => (
-        <div
-          key={s.type}
-          // TODO M2-polish: wire drag-and-drop (Approach A from design spec)
-          draggable
-          onDragStart={(e) => e.dataTransfer.setData('text/plain', s.type)}
-          className="mx-1.5 mb-0.5 px-2.5 py-1 rounded text-[9px] font-mono cursor-grab"
-          style={{ background: 'var(--cb-bg-elevated)', border: '1px solid var(--cb-border)', color: 'var(--cb-text-secondary)' }}
-        >
-          ⬡ {s.label}
-        </div>
-      ))}
+      {SERVICES.map((s) => {
+        const count = counts[s.type] ?? 0
+        return (
+          <div
+            key={s.type}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData('text/plain', s.type)}
+            className="mx-1.5 mb-0.5 px-2.5 py-1 rounded text-[9px] font-mono cursor-grab"
+            style={{
+              background:     'var(--cb-bg-elevated)',
+              border:         '1px solid var(--cb-border)',
+              color:          'var(--cb-text-secondary)',
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <span>⬡ {s.label}</span>
+            {count > 0 && (
+              <span
+                style={{
+                  fontSize:     10,
+                  color:        'var(--cb-text-muted)',
+                  background:   'var(--cb-bg-elevated)',
+                  border:       '1px solid var(--cb-border)',
+                  borderRadius: 9999,
+                  padding:      '0 5px',
+                  minWidth:     16,
+                  textAlign:    'center',
+                  lineHeight:   '14px',
+                  flexShrink:   0,
+                }}
+              >
+                {count}
+              </span>
+            )}
+          </div>
+        )
+      })}
 
       <div className="px-2.5 text-[9px] uppercase tracking-widest mt-3 mb-1" style={{ color: 'var(--cb-text-muted)', fontFamily: 'monospace' }}>
         Views

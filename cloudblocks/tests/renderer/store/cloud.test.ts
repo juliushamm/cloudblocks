@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useCloudStore, createCloudStore } from '../../../src/renderer/store/cloud'
+import { useUIStore } from '../../../src/renderer/store/ui'
 import type { CloudNode, ScanDelta } from '../../../src/renderer/types/cloud'
 
 const makeNode = (id: string): CloudNode => ({
@@ -8,7 +9,8 @@ const makeNode = (id: string): CloudNode => ({
 
 describe('useCloudStore', () => {
   beforeEach(() => {
-    useCloudStore.setState({ nodes: [], selectedNodeId: null, scanStatus: 'idle', profile: 'default', region: 'us-east-1' })
+    useCloudStore.setState({ nodes: [], scanStatus: 'idle', profile: 'default', region: 'us-east-1' })
+    useUIStore.setState({ selectedNodeId: null, view: 'topology' })
   })
 
   it('applies added nodes from delta', () => {
@@ -32,8 +34,8 @@ describe('useCloudStore', () => {
   })
 
   it('sets selected node', () => {
-    useCloudStore.getState().selectNode('i-001')
-    expect(useCloudStore.getState().selectedNodeId).toBe('i-001')
+    useUIStore.getState().selectNode('i-001')
+    expect(useUIStore.getState().selectedNodeId).toBe('i-001')
   })
 
   it('sets scan status', () => {

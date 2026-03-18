@@ -24,7 +24,7 @@ beforeEach(() => {
     setSettings:   vi.fn().mockResolvedValue(undefined),
     getThemeOverrides: vi.fn().mockResolvedValue({}),
   }
-  useCloudStore.setState({ nodes: [], selectedNodeId: null, scanStatus: 'idle', profile: 'default', region: 'us-east-1', view: 'topology' })
+  useCloudStore.setState({ nodes: [], scanStatus: 'idle', profile: 'default', region: 'us-east-1' })
 })
 
 describe('useIpc', () => {

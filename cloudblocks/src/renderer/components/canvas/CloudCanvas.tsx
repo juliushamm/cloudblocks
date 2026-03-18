@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ReactFlowProvider, useReactFlow } from '@xyflow/react'
 import { useCloudStore } from '../../store/cloud'
+import { useUIStore } from '../../store/ui'
 import { TopologyView } from './TopologyView'
 import { GraphView } from './GraphView'
 import { CanvasContextMenu } from './CanvasContextMenu'
@@ -21,8 +22,8 @@ interface Props {
 /** Inner component — must live inside ReactFlowProvider to access useReactFlow hooks. */
 function CanvasInner({ onScan, onNodeContextMenu }: Props){
   const { fitView, zoomIn, zoomOut } = useReactFlow()
-  const view          = useCloudStore((s) => s.view)
-  const setView       = useCloudStore((s) => s.setView)
+  const view          = useUIStore((s) => s.view)
+  const setView       = useUIStore((s) => s.setView)
   const scanStatus    = useCloudStore((s) => s.scanStatus)
   const lastScannedAt = useCloudStore((s) => s.lastScannedAt)
   const nodes         = useCloudStore((s) => s.nodes)

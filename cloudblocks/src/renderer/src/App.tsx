@@ -17,6 +17,8 @@ import { SearchPalette } from '../components/SearchPalette'
 import { buildDeleteCommands, buildQuickActionCommand } from '../utils/buildDeleteCommands'
 import type { DeleteOptions } from '../utils/buildDeleteCommands'
 import { useCloudStore } from '../store/cloud'
+import { useUIStore } from '../store/ui'
+import { useCliStore } from '../store/cli'
 import type { AwsProfile, CloudNode } from '../types/cloud'
 
 export default function App(){
@@ -25,12 +27,12 @@ export default function App(){
   const [profiles, setProfiles] = useState<AwsProfile[] | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const errorMessage = useCloudStore((s) => s.errorMessage)
-  const setError     = useCloudStore((s) => s.setError)
-  const settings = useCloudStore((s) => s.settings)
-  const setCommandPreview = useCloudStore((s) => s.setCommandPreview)
-  const setPendingCommand = useCloudStore((s) => s.setPendingCommand)
-  const selectNode    = useCloudStore((s) => s.selectNode)
+  const errorMessage      = useCloudStore((s) => s.errorMessage)
+  const setError          = useCloudStore((s) => s.setError)
+  const settings          = useCloudStore((s) => s.settings)
+  const setCommandPreview = useCliStore((s) => s.setCommandPreview)
+  const setPendingCommand = useCliStore((s) => s.setPendingCommand)
+  const selectNode        = useUIStore((s) => s.selectNode)
 
   const [deleteTarget, setDeleteTarget] = useState<CloudNode | null>(null)
   const [nodeMenu, setNodeMenu] = useState<{ node: CloudNode; x: number; y: number } | null>(null)

@@ -1,4 +1,4 @@
-import { useCloudStore } from '../store/cloud'
+import { useUIStore } from '../store/ui'
 import type { NodeType } from '../types/cloud'
 
 const SERVICES: { type: NodeType; label: string }[] = [
@@ -13,8 +13,8 @@ const SERVICES: { type: NodeType; label: string }[] = [
 ]
 
 export function Sidebar(){
-  const view    = useCloudStore((s) => s.view)
-  const setView = useCloudStore((s) => s.setView)
+  const view    = useUIStore((s) => s.view)
+  const setView = useUIStore((s) => s.setView)
 
   return (
     <div

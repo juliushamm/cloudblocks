@@ -12,36 +12,23 @@ const DEFAULT_SETTINGS: Settings = {
 
 interface CloudState {
   nodes:          CloudNode[]
-  selectedNodeId: string | null
   scanStatus:     'idle' | 'scanning' | 'error'
   lastScannedAt:  Date | null
   profile:        string
   region:         string
-  view:           'topology' | 'graph'
   errorMessage:   string | null
-  pendingNodes:     CloudNode[]
-  cliOutput:        Array<{ line: string; stream: 'stdout' | 'stderr' }>
-  commandPreview:   string[]
-  pendingCommand:   string[][] | null
-  activeCreate:     { resource: string; view: 'topology' | 'graph' } | null
-  keyPairs:         string[]
-  settings:         Settings
+  pendingNodes:   CloudNode[]
+  keyPairs:       string[]
+  settings:       Settings
 
   applyDelta:     (delta: ScanDelta) => void
-  selectNode:     (id: string | null) => void
   setScanStatus:  (status: 'idle' | 'scanning' | 'error') => void
   setProfile:     (profile: string) => void
   setRegion:      (region: string) => void
-  setView:        (view: 'topology' | 'graph') => void
   setError:       (msg: string | null) => void
   addPendingNode:    (node: CloudNode) => void
   removePendingNode: (id: string) => void
   clearPendingNodes: () => void
-  appendCliOutput:   (entry: { line: string; stream: 'stdout' | 'stderr' }) => void
-  clearCliOutput:    () => void
-  setCommandPreview: (cmd: string[]) => void
-  setPendingCommand: (cmds: string[][] | null) => void
-  setActiveCreate:      (val: { resource: string; view: 'topology' | 'graph' } | null) => void
   setKeyPairs:          (pairs: string[]) => void
   loadSettings:         () => Promise<void>
   saveSettings:         (s: Settings) => Promise<void>
@@ -51,18 +38,12 @@ interface CloudState {
 
 export const useCloudStore = create<CloudState>((set) => ({
   nodes:          [],
-  selectedNodeId: null,
   scanStatus:     'idle',
   lastScannedAt:  null,
   profile:        'default',
   region:         'us-east-1',
-  view:           'topology',
   errorMessage:   null,
   pendingNodes:   [],
-  cliOutput:      [],
-  commandPreview: [],
-  pendingCommand: null,
-  activeCreate:   null,
   keyPairs:       [],
   settings:       DEFAULT_SETTINGS,
 
@@ -81,11 +62,9 @@ export const useCloudStore = create<CloudState>((set) => ({
       return { nodes: Array.from(nodeMap.values()), lastScannedAt: new Date() }
     }),
 
-  selectNode:    (id)      => set({ selectedNodeId: id }),
   setScanStatus: (status)  => set({ scanStatus: status }),
   setProfile:    (profile) => set({ profile }),
   setRegion:     (region)  => set({ region }),
-  setView:       (view)    => set({ view }),
   setError:      (msg)     => set({ errorMessage: msg }),
 
   addPendingNode: (node) =>
@@ -96,15 +75,6 @@ export const useCloudStore = create<CloudState>((set) => ({
 
   clearPendingNodes: () => set({ pendingNodes: [] }),
 
-  appendCliOutput: (entry) =>
-    set((state) => ({ cliOutput: [...state.cliOutput, entry] })),
-
-  clearCliOutput: () => set({ cliOutput: [] }),
-
-  setCommandPreview: (cmd) => set({ commandPreview: cmd }),
-  setPendingCommand: (cmds) => set({ pendingCommand: cmds }),
-
-  setActiveCreate: (val) => set({ activeCreate: val }),
   setKeyPairs: (pairs) => set({ keyPairs: pairs }),
 
   loadSettings: async () => {
@@ -124,21 +94,16 @@ export const useCloudStore = create<CloudState>((set) => ({
     set((state) => ({ nodes: state.nodes.filter((n) => n.id !== id) })),
 }))
 
+// test-only factory — allows isolated store instances in unit tests
 export function createCloudStore() {
   return createStore<CloudState>((set) => ({
     nodes:          [],
-    selectedNodeId: null,
     scanStatus:     'idle',
     lastScannedAt:  null,
     profile:        'default',
     region:         'us-east-1',
-    view:           'topology',
     errorMessage:   null,
     pendingNodes:   [],
-    cliOutput:      [],
-    commandPreview: [],
-    pendingCommand: null,
-    activeCreate:   null,
     keyPairs:       [],
     settings:       DEFAULT_SETTINGS,
 
@@ -157,11 +122,9 @@ export function createCloudStore() {
         return { nodes: Array.from(nodeMap.values()), lastScannedAt: new Date() }
       }),
 
-    selectNode:    (id)      => set({ selectedNodeId: id }),
     setScanStatus: (status)  => set({ scanStatus: status }),
     setProfile:    (profile) => set({ profile }),
     setRegion:     (region)  => set({ region }),
-    setView:       (view)    => set({ view }),
     setError:      (msg)     => set({ errorMessage: msg }),
 
     addPendingNode: (node) =>
@@ -172,15 +135,6 @@ export function createCloudStore() {
 
     clearPendingNodes: () => set({ pendingNodes: [] }),
 
-    appendCliOutput: (entry) =>
-      set((state) => ({ cliOutput: [...state.cliOutput, entry] })),
-
-    clearCliOutput: () => set({ cliOutput: [] }),
-
-    setCommandPreview: (cmd) => set({ commandPreview: cmd }),
-    setPendingCommand: (cmds) => set({ pendingCommand: cmds }),
-
-    setActiveCreate: (val) => set({ activeCreate: val }),
     setKeyPairs: (pairs) => set({ keyPairs: pairs }),
 
     loadSettings: async () => {},

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import type { CloudNode } from '../../types/cloud'
 import type { EditParams, CloudFrontEditParams } from '../../types/edit'
 import { buildEditCommands } from '../../utils/buildEditCommands'
-import { useCloudStore } from '../../store/cloud'
+import { useCliStore } from '../../store/cli'
 import VpcEditForm from './VpcEditForm'
 import Ec2EditForm from './Ec2EditForm'
 import SgEditForm from './SgEditForm'
@@ -25,7 +25,7 @@ const RESOURCE_LABELS: Record<string, string> = {
 }
 
 export default function EditModal({ node, onClose }: EditModalProps) {
-  const { setCommandPreview, appendCliOutput, clearCliOutput } = useCloudStore()
+  const { setCommandPreview, appendCliOutput, clearCliOutput } = useCliStore()
   const [showErrors, setShowErrors] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const paramsRef = useRef<EditParams | null>(null)

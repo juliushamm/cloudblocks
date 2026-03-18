@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCloudStore } from '../store/cloud'
+import { useUIStore } from '../store/ui'
 import type { CloudNode } from '../types/cloud'
 import { fieldLabel } from '../utils/fieldLabels'
 
@@ -11,9 +12,9 @@ interface InspectorProps {
 }
 
 export function Inspector({ onDelete, onEdit, onQuickAction, onAddRoute }: InspectorProps){
-  const selectedId    = useCloudStore((s) => s.selectedNodeId)
-  const nodes         = useCloudStore((s) => s.nodes)
-  const setActiveCreate = useCloudStore((s) => s.setActiveCreate)
+  const selectedId      = useUIStore((s) => s.selectedNodeId)
+  const setActiveCreate = useUIStore((s) => s.setActiveCreate)
+  const nodes           = useCloudStore((s) => s.nodes)
   const node          = nodes.find((n) => n.id === selectedId)
 
   const [invalidatePath, setInvalidatePath] = useState('/*')

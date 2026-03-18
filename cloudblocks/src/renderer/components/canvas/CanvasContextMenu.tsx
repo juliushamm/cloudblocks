@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useCloudStore } from '../../store/cloud'
+import { useUIStore } from '../../store/ui'
 
 interface Props {
   x: number
@@ -21,7 +21,7 @@ const CREATABLE = [
 ] as const
 
 export function CanvasContextMenu({ x, y, onClose }: Props){
-  const setActiveCreate = useCloudStore((s) => s.setActiveCreate)
+  const setActiveCreate = useUIStore((s) => s.setActiveCreate)
   const [pendingResource, setPendingResource] = useState<string | null>(null)
 
   const menuStyle: React.CSSProperties = {

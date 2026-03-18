@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { useCloudStore } from '../../store/cloud'
+import { useUIStore } from '../../store/ui'
+import { useCliStore } from '../../store/cli'
 import { buildCommands } from '../../utils/buildCommand'
 import type { CreateParams, CloudFrontParams } from '../../types/create'
 import type { NodeType } from '../../types/cloud'
@@ -63,17 +65,17 @@ const RESOURCE_TO_NODE_TYPE: Record<string, NodeType> = {
 }
 
 export function CreateModal(){
-  const activeCreate        = useCloudStore((s) => s.activeCreate)
-  const region              = useCloudStore((s) => s.region)
-  const setActiveCreate     = useCloudStore((s) => s.setActiveCreate)
-  const setCommandPreview   = useCloudStore((s) => s.setCommandPreview)
-  const clearCliOutput      = useCloudStore((s) => s.clearCliOutput)
-  const addPendingNode      = useCloudStore((s) => s.addPendingNode)
-  const removePendingNode   = useCloudStore((s) => s.removePendingNode)
-  const addOptimisticNode   = useCloudStore((s) => s.addOptimisticNode)
+  const activeCreate         = useUIStore((s) => s.activeCreate)
+  const setActiveCreate      = useUIStore((s) => s.setActiveCreate)
+  const selectedNodeId       = useUIStore((s) => s.selectedNodeId)
+  const setCommandPreview    = useCliStore((s) => s.setCommandPreview)
+  const clearCliOutput       = useCliStore((s) => s.clearCliOutput)
+  const region               = useCloudStore((s) => s.region)
+  const addPendingNode       = useCloudStore((s) => s.addPendingNode)
+  const removePendingNode    = useCloudStore((s) => s.removePendingNode)
+  const addOptimisticNode    = useCloudStore((s) => s.addOptimisticNode)
   const removeOptimisticNode = useCloudStore((s) => s.removeOptimisticNode)
-  const selectedNodeId      = useCloudStore((s) => s.selectedNodeId)
-  const nodes               = useCloudStore((s) => s.nodes)
+  const nodes                = useCloudStore((s) => s.nodes)
 
   // When creating a route, the parent API is the currently selected node (if it's an apigw)
   const selectedNode = nodes.find((n) => n.id === selectedNodeId)

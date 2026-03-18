@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { ReactFlow, Background, MiniMap, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCloudStore } from '../../store/cloud'
+import { useUIStore } from '../../store/ui'
 import { ResourceNode } from './nodes/ResourceNode'
 import { VpcNode } from './nodes/VpcNode'
 import { SubnetNode } from './nodes/SubnetNode'
@@ -337,8 +338,8 @@ interface TopologyViewProps {
 export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
   const cloudNodes   = useCloudStore((s) => s.nodes)
   const pendingNodes = useCloudStore((s) => s.pendingNodes)
-  const selectNode   = useCloudStore((s) => s.selectNode)
-  const selectedId   = useCloudStore((s) => s.selectedNodeId)
+  const selectNode   = useUIStore((s) => s.selectNode)
+  const selectedId   = useUIStore((s) => s.selectedNodeId)
 
   const allNodes = useMemo(() => [...cloudNodes, ...pendingNodes], [cloudNodes, pendingNodes])
 

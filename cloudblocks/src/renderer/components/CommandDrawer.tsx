@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCloudStore } from '../store/cloud'
+import { useUIStore } from '../store/ui'
+import { useCliStore } from '../store/cli'
 
 export function CommandDrawer(){
-  const cliOutput         = useCloudStore((s) => s.cliOutput)
-  const commandPreview    = useCloudStore((s) => s.commandPreview)
-  const pendingCommand    = useCloudStore((s) => s.pendingCommand)
-  const activeCreate      = useCloudStore((s) => s.activeCreate)
-  const appendCliOutput   = useCloudStore((s) => s.appendCliOutput)
-  const clearCliOutput    = useCloudStore((s) => s.clearCliOutput)
+  const cliOutput         = useCliStore((s) => s.cliOutput)
+  const commandPreview    = useCliStore((s) => s.commandPreview)
+  const pendingCommand    = useCliStore((s) => s.pendingCommand)
+  const activeCreate      = useUIStore((s) => s.activeCreate)
+  const appendCliOutput   = useCliStore((s) => s.appendCliOutput)
+  const clearCliOutput    = useCliStore((s) => s.clearCliOutput)
   const clearPendingNodes = useCloudStore((s) => s.clearPendingNodes)
-  const setPendingCommand = useCloudStore((s) => s.setPendingCommand)
-  const setCommandPreview = useCloudStore((s) => s.setCommandPreview)
+  const setPendingCommand = useCliStore((s) => s.setPendingCommand)
+  const setCommandPreview = useCliStore((s) => s.setCommandPreview)
 
   const [expanded, setExpanded] = useState(false)
   const [running,  setRunning]  = useState(false)

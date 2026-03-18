@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
-import { ReactFlow, Background, MiniMap, type Node, type Edge } from '@xyflow/react'
+import { useMemo, useCallback } from 'react'
+import { ReactFlow, Background, MiniMap, useReactFlow, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCloudStore } from '../../store/cloud'
 import { useUIStore } from '../../store/ui'
+import type { NodeType } from '../../types/cloud'
 import { ResourceNode } from './nodes/ResourceNode'
 import { VpcNode } from './nodes/VpcNode'
 import { SubnetNode } from './nodes/SubnetNode'
@@ -336,10 +337,26 @@ interface TopologyViewProps {
 }
 
 export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
-  const cloudNodes   = useCloudStore((s) => s.nodes)
-  const pendingNodes = useCloudStore((s) => s.pendingNodes)
-  const selectNode   = useUIStore((s) => s.selectNode)
-  const selectedId   = useUIStore((s) => s.selectedNodeId)
+  const cloudNodes      = useCloudStore((s) => s.nodes)
+  const pendingNodes    = useCloudStore((s) => s.pendingNodes)
+  const selectNode      = useUIStore((s) => s.selectNode)
+  const selectedId      = useUIStore((s) => s.selectedNodeId)
+  const setActiveCreate = useUIStore((s) => s.setActiveCreate)
+  const view            = useUIStore((s) => s.view)
+  const { screenToFlowPosition } = useReactFlow()
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    const type = e.dataTransfer.getData('text/plain') as NodeType
+    if (!type) return
+    const dropPosition = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+    setActiveCreate({ resource: type, view, dropPosition })
+  }, [screenToFlowPosition, view, setActiveCreate])
 
   const allNodes = useMemo(() => [...cloudNodes, ...pendingNodes], [cloudNodes, pendingNodes])
 
@@ -381,6 +398,8 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
         const cloudNode = allNodes.find((n) => n.id === rfNode.id)
         if (cloudNode) onNodeContextMenu(cloudNode, event.clientX, event.clientY)
       }}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       fitView
       style={{ background: 'var(--cb-canvas-bg)' }}
     >

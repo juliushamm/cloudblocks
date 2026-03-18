@@ -1,8 +1,9 @@
 import type { NodeProps } from '@xyflow/react'
 
 interface ApigwNodeData {
-  label: string
+  label:    string
   endpoint?: string
+  dimmed?:  boolean
 }
 
 export function ApigwNode({ data }: NodeProps) {
@@ -17,6 +18,9 @@ export function ApigwNode({ data }: NodeProps) {
         minHeight:    80,
         fontFamily:   'monospace',
         overflow:     'hidden',
+        opacity:      d.dimmed ? 0.25 : 1,
+        filter:       d.dimmed ? 'grayscale(60%)' : 'none',
+        transition:   'opacity 0.2s, filter 0.2s',
       }}
     >
       {/* Header bar */}

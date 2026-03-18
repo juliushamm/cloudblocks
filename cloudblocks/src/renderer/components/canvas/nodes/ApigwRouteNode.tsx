@@ -1,10 +1,11 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 
 interface ApigwRouteNodeData {
-  label:     string
-  method?:   string
-  path?:     string
+  label:      string
+  method?:    string
+  path?:      string
   hasLambda?: boolean
+  dimmed?:    boolean
 }
 
 const METHOD_COLORS: Record<string, string> = {
@@ -43,6 +44,9 @@ export function ApigwRouteNode({ data, selected }: NodeProps) {
         boxSizing:    'border-box',
         minWidth:     140,
         boxShadow:    selected ? `0 0 8px ${methodColor}44` : 'none',
+        opacity:      d.dimmed ? 0.25 : 1,
+        filter:       d.dimmed ? 'grayscale(60%)' : 'none',
+        transition:   'opacity 0.2s, filter 0.2s',
       }}
     >
       <Handle type="target" position={Position.Top}    style={{ opacity: 0 }} />

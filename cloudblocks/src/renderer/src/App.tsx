@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useIpc } from '../hooks/useIpc'
 import { useScanner } from '../hooks/useScanner'
 import { TitleBar } from '../components/TitleBar'
@@ -13,6 +13,7 @@ import SettingsPanel from '../components/SettingsPanel'
 import NodeContextMenu from '../components/canvas/NodeContextMenu'
 import DeleteDialog from '../components/modals/DeleteDialog'
 import EditModal from '../components/modals/EditModal'
+import { SearchPalette } from '../components/SearchPalette'
 import { buildDeleteCommands, buildQuickActionCommand } from '../utils/buildDeleteCommands'
 import type { DeleteOptions } from '../utils/buildDeleteCommands'
 import { useCloudStore } from '../store/cloud'
@@ -23,15 +24,23 @@ export default function App(){
   const { triggerScan } = useScanner()
   const [profiles, setProfiles] = useState<AwsProfile[] | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const errorMessage = useCloudStore((s) => s.errorMessage)
   const setError     = useCloudStore((s) => s.setError)
   const settings = useCloudStore((s) => s.settings)
   const setCommandPreview = useCloudStore((s) => s.setCommandPreview)
   const setPendingCommand = useCloudStore((s) => s.setPendingCommand)
+  const selectNode    = useCloudStore((s) => s.selectNode)
 
   const [deleteTarget, setDeleteTarget] = useState<CloudNode | null>(null)
   const [nodeMenu, setNodeMenu] = useState<{ node: CloudNode; x: number; y: number } | null>(null)
   const [editTarget, setEditTarget] = useState<CloudNode | null>(null)  // placeholder for Task 13
+
+  const handleSearchSelect = useCallback((nodeId: string) => {
+    selectNode(nodeId)
+    // fitView is called on the ReactFlow instance inside CanvasInner; we trigger it via a custom event
+    window.dispatchEvent(new CustomEvent('cloudblocks:fitnode', { detail: { nodeId } }))
+  }, [selectNode])
 
   useEffect(() => {
     window.cloudblocks.listProfiles().then(setProfiles)
@@ -44,6 +53,15 @@ export default function App(){
       el.textContent = `:root { ${Object.entries(overrides).map(([k, v]) => `${k}: ${v}`).join('; ')} }`
       if (!el.parentElement) document.head.appendChild(el)
     })
+
+    function onKeyDown(e: KeyboardEvent): void {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
   const handleDeleteConfirm = (node: CloudNode, opts: DeleteOptions) => {
@@ -90,6 +108,11 @@ export default function App(){
       <CommandDrawer />
       <CreateModal />
       {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
+      <SearchPalette
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelect={handleSearchSelect}
+      />
       {nodeMenu && (
         <NodeContextMenu
           node={nodeMenu.node}

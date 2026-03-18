@@ -63,15 +63,17 @@ const RESOURCE_TO_NODE_TYPE: Record<string, NodeType> = {
 }
 
 export function CreateModal(){
-  const activeCreate      = useCloudStore((s) => s.activeCreate)
-  const region            = useCloudStore((s) => s.region)
-  const setActiveCreate   = useCloudStore((s) => s.setActiveCreate)
-  const setCommandPreview = useCloudStore((s) => s.setCommandPreview)
-  const clearCliOutput    = useCloudStore((s) => s.clearCliOutput)
-  const addPendingNode    = useCloudStore((s) => s.addPendingNode)
-  const removePendingNode = useCloudStore((s) => s.removePendingNode)
-  const selectedNodeId    = useCloudStore((s) => s.selectedNodeId)
-  const nodes             = useCloudStore((s) => s.nodes)
+  const activeCreate        = useCloudStore((s) => s.activeCreate)
+  const region              = useCloudStore((s) => s.region)
+  const setActiveCreate     = useCloudStore((s) => s.setActiveCreate)
+  const setCommandPreview   = useCloudStore((s) => s.setCommandPreview)
+  const clearCliOutput      = useCloudStore((s) => s.clearCliOutput)
+  const addPendingNode      = useCloudStore((s) => s.addPendingNode)
+  const removePendingNode   = useCloudStore((s) => s.removePendingNode)
+  const addOptimisticNode   = useCloudStore((s) => s.addOptimisticNode)
+  const removeOptimisticNode = useCloudStore((s) => s.removeOptimisticNode)
+  const selectedNodeId      = useCloudStore((s) => s.selectedNodeId)
+  const nodes               = useCloudStore((s) => s.nodes)
 
   // When creating a route, the parent API is the currently selected node (if it's an apigw)
   const selectedNode = nodes.find((n) => n.id === selectedNodeId)
@@ -81,9 +83,10 @@ export function CreateModal(){
 
   const [showErrors, setShowErrors] = useState(false)
 
-  const pendingIdRef  = useRef<string | null>(null)
-  const paramsRef     = useRef<CreateParams | null>(null)
-  const handleRunRef  = useRef<() => void>(() => {})
+  const pendingIdRef    = useRef<string | null>(null)
+  const optimisticIdRef = useRef<string | null>(null)
+  const paramsRef       = useRef<CreateParams | null>(null)
+  const handleRunRef    = useRef<() => void>(() => {})
 
   // Listen for Run button from CommandDrawer (only while this modal is mounted)
   useEffect(() => {
@@ -112,9 +115,26 @@ export function CreateModal(){
 
   function handleCancel(): void {
     if (pendingIdRef.current) removePendingNode(pendingIdRef.current)
+    if (optimisticIdRef.current) removeOptimisticNode(optimisticIdRef.current)
+    optimisticIdRef.current = null
     clearCliOutput()
     setCommandPreview([])
     setActiveCreate(null)
+  }
+
+  function deriveOptimisticLabel(params: CreateParams): string {
+    switch (params.resource) {
+      case 'ec2':          return (params as { name?: string }).name || 'New EC2'
+      case 'rds':          return (params as { identifier?: string }).identifier || 'New RDS'
+      case 's3':           return (params as { bucketName?: string }).bucketName || 'New S3'
+      case 'lambda':       return (params as { name?: string }).name || 'New Lambda'
+      case 'alb':          return (params as { name?: string }).name || 'New ALB'
+      case 'vpc':          return (params as { name?: string }).name || 'New VPC'
+      case 'acm':          return (params as { domainName?: string }).domainName || 'New Certificate'
+      case 'cloudfront':   return (params as { comment?: string }).comment || 'New Distribution'
+      case 'apigw':        return (params as { name?: string }).name || 'New API'
+      default:             return `New ${params.resource}`
+    }
   }
 
   function handleRun(): void {
@@ -125,6 +145,20 @@ export function CreateModal(){
       return
     }
     setShowErrors(false)
+
+    // Optimistic node — goes into the main nodes array so the next scan can replace it
+    const optimisticId = `optimistic-${Date.now()}`
+    optimisticIdRef.current = optimisticId
+    addOptimisticNode({
+      id:       optimisticId,
+      type:     RESOURCE_TO_NODE_TYPE[activeCreate.resource] ?? 'ec2',
+      label:    deriveOptimisticLabel(paramsRef.current),
+      status:   'creating',
+      region,
+      metadata: {},
+    })
+
+    // Pending node — lives in pendingNodes for backward compat with existing canvas code
     const id = `pending:${crypto.randomUUID()}`
     pendingIdRef.current = id
     addPendingNode({
@@ -145,15 +179,22 @@ export function CreateModal(){
       .then((result) => {
         if (pendingIdRef.current) removePendingNode(pendingIdRef.current)
         pendingIdRef.current = null
+        // On success: leave optimistic node; next scan will replace it
+        optimisticIdRef.current = null
         if (result.code === 0) {
           setCommandPreview([])
           setActiveCreate(null)
           window.cloudblocks.startScan()
+        } else {
+          // CLI returned non-zero: remove optimistic node
+          removeOptimisticNode(optimisticId)
         }
       })
       .catch(() => {
         if (pendingIdRef.current) removePendingNode(pendingIdRef.current)
         pendingIdRef.current = null
+        removeOptimisticNode(optimisticId)
+        optimisticIdRef.current = null
       })
   }
 

@@ -17,8 +17,9 @@ function statusStripeColor(status: NodeStatus): string {
 }
 
 interface AcmNodeData {
-  label:  string
-  status: NodeStatus
+  label:   string
+  status:  NodeStatus
+  dimmed?: boolean
 }
 
 export function AcmNode({ data, selected }: NodeProps) {
@@ -28,15 +29,18 @@ export function AcmNode({ data, selected }: NodeProps) {
   return (
     <div
       data-selected={selected}
-      className="relative rounded"
+      className={`relative rounded${d.status === 'creating' ? ' animate-pulse' : ''}`}
       style={{
-        background: 'var(--cb-bg-panel)',
-        border:     `${selected ? '2px' : '1px'} solid ${BORDER_COLOR}`,
-        borderLeft: `3px solid ${stripeColor}`,
-        boxShadow:  selected ? `0 0 10px ${BORDER_COLOR}55` : 'none',
-        fontFamily: 'monospace',
-        minWidth:   130,
-        padding:    '6px 10px 6px 8px',
+        background:  'var(--cb-bg-panel)',
+        border:      `${selected ? '2px' : '1px'} solid ${BORDER_COLOR}`,
+        borderLeft:  `3px solid ${stripeColor}`,
+        boxShadow:   selected ? `0 0 10px ${BORDER_COLOR}55` : 'none',
+        fontFamily:  'monospace',
+        minWidth:    130,
+        padding:     '6px 10px 6px 8px',
+        opacity:     d.dimmed ? 0.25 : 1,
+        filter:      d.dimmed ? 'grayscale(60%)' : 'none',
+        transition:  'opacity 0.2s, filter 0.2s',
       }}
     >
       <Handle type="target" position={Position.Top}    style={{ opacity: 0 }} />

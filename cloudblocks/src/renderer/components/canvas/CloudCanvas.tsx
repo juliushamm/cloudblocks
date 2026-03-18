@@ -37,6 +37,16 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
     return () => clearInterval(id)
   }, [lastScannedAt])
 
+  // Listen for search-palette node selection — fly camera to the selected node
+  useEffect(() => {
+    function onFitNode(e: Event): void {
+      const { nodeId } = (e as CustomEvent<{ nodeId: string }>).detail
+      fitView({ nodes: [{ id: nodeId }], duration: 400, padding: 0.5 })
+    }
+    window.addEventListener('cloudblocks:fitnode', onFitNode)
+    return () => window.removeEventListener('cloudblocks:fitnode', onFitNode)
+  }, [fitView])
+
   const btnBase = { fontFamily: 'monospace', fontSize: '9px', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer' }
 
   function handleContextMenu(e: React.MouseEvent): void {

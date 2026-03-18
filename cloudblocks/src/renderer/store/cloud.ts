@@ -41,10 +41,12 @@ interface CloudState {
   clearCliOutput:    () => void
   setCommandPreview: (cmd: string[]) => void
   setPendingCommand: (cmds: string[][] | null) => void
-  setActiveCreate:   (val: { resource: string; view: 'topology' | 'graph' } | null) => void
-  setKeyPairs:       (pairs: string[]) => void
-  loadSettings:      () => Promise<void>
-  saveSettings:      (s: Settings) => Promise<void>
+  setActiveCreate:      (val: { resource: string; view: 'topology' | 'graph' } | null) => void
+  setKeyPairs:          (pairs: string[]) => void
+  loadSettings:         () => Promise<void>
+  saveSettings:         (s: Settings) => Promise<void>
+  addOptimisticNode:    (node: CloudNode) => void
+  removeOptimisticNode: (id: string) => void
 }
 
 export const useCloudStore = create<CloudState>((set) => ({
@@ -114,6 +116,12 @@ export const useCloudStore = create<CloudState>((set) => ({
     await window.cloudblocks.setSettings(s)
     set({ settings: s })
   },
+
+  addOptimisticNode: (node) =>
+    set((state) => ({ nodes: [...state.nodes, node] })),
+
+  removeOptimisticNode: (id) =>
+    set((state) => ({ nodes: state.nodes.filter((n) => n.id !== id) })),
 }))
 
 export function createCloudStore() {
@@ -177,5 +185,11 @@ export function createCloudStore() {
 
     loadSettings: async () => {},
     saveSettings: async () => {},
+
+    addOptimisticNode: (node) =>
+      set((state) => ({ nodes: [...state.nodes, node] })),
+
+    removeOptimisticNode: (id) =>
+      set((state) => ({ nodes: state.nodes.filter((n) => n.id !== id) })),
   }))
 }

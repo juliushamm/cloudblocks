@@ -52,6 +52,7 @@ interface ResourceNodeData {
   status:     NodeStatus
   vpcLabel?:  string   // graph view only — VPC membership indicator
   vpcColor?:  string   // graph view only — color assigned to that VPC
+  dimmed?:    boolean  // focus mode — node is not in the highlighted subgraph
 }
 
 export function ResourceNode({ data, selected }: NodeProps) {
@@ -63,7 +64,7 @@ export function ResourceNode({ data, selected }: NodeProps) {
   return (
     <div
       data-selected={selected}
-      className="relative rounded"
+      className={`relative rounded${d.status === 'creating' ? ' animate-pulse' : ''}`}
       style={{
         background:  'var(--cb-bg-panel)',
         border:      `${selected ? '2px' : '1px'} solid ${borderColor}`,
@@ -72,6 +73,9 @@ export function ResourceNode({ data, selected }: NodeProps) {
         fontFamily:  'monospace',
         minWidth:    130,
         padding:     '6px 10px 6px 8px',
+        opacity:     d.dimmed ? 0.25 : 1,
+        filter:      d.dimmed ? 'grayscale(60%)' : 'none',
+        transition:  'opacity 0.2s, filter 0.2s',
       }}
     >
       <Handle type="target" position={Position.Top}    style={{ opacity: 0 }} />

@@ -57,7 +57,7 @@ function subnetSize(resourceCount: number): { w: number; h: number } {
   }
 }
 
-function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Node[] {
+function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null, highlightedIds: Set<string> | null): Node[] {
   const nodes: Node[] = []
 
   // Separate global nodes from regional nodes
@@ -99,7 +99,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
           x: GLOBAL_PAD + col * (RES_W + RES_GAP_X),
           y: GLOBAL_LABEL + row * (RES_H + RES_GAP_Y),
         },
-        data:     { label: n.label, nodeType: n.type, status: n.status },
+        data:     { label: n.label, nodeType: n.type, status: n.status, dimmed: highlightedIds !== null && !highlightedIds.has(n.id) },
         selected: n.id === selectedId,
       })
     })
@@ -179,7 +179,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
             x: SUB_PAD_X + col * (RES_W + RES_GAP_X),
             y: SUB_PAD_Y + row * (RES_H + RES_GAP_Y),
           },
-          data:     { label: r.label, nodeType: r.type, status: r.status },
+          data:     { label: r.label, nodeType: r.type, status: r.status, dimmed: highlightedIds !== null && !highlightedIds.has(r.id) },
           selected: r.id === selectedId,
         })
       })
@@ -199,7 +199,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
           x: VPC_PAD + col * (RES_W + RES_GAP_X),
           y: subnetBottom + row * (RES_H + RES_GAP_Y),
         },
-        data:     { label: r.label, nodeType: r.type, status: r.status },
+        data:     { label: r.label, nodeType: r.type, status: r.status, dimmed: highlightedIds !== null && !highlightedIds.has(r.id) },
         selected: r.id === selectedId,
       })
     })
@@ -228,7 +228,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
       type:     'apigw',
       position: { x: vpcX, y: vpcY },
       style:    { width: apigwW, height: apigwHFinal },
-      data:     { label: api.label, endpoint: api.metadata.endpoint as string | undefined },
+      data:     { label: api.label, endpoint: api.metadata.endpoint as string | undefined, dimmed: highlightedIds !== null && !highlightedIds.has(api.id) },
       selected: api.id === selectedId,
     })
 
@@ -248,6 +248,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
           method:    route.metadata.method as string | undefined,
           path:      route.metadata.path as string | undefined,
           hasLambda: !!(route.metadata.lambdaArn),
+          dimmed:    highlightedIds !== null && !highlightedIds.has(route.id),
         },
         selected: route.id === selectedId,
       })
@@ -264,7 +265,7 @@ function buildFlowNodes(cloudNodes: CloudNode[], selectedId: string | null): Nod
       id:       r.id,
       type:     'resource',
       position: { x: 40 + (i % ROOT_COLS) * (RES_W + RES_GAP_X + 40), y: rootY + Math.floor(i / ROOT_COLS) * (RES_H + RES_GAP_Y + 20) },
-      data:     { label: r.label, nodeType: r.type, status: r.status },
+      data:     { label: r.label, nodeType: r.type, status: r.status, dimmed: highlightedIds !== null && !highlightedIds.has(r.id) },
       selected: r.id === selectedId,
     })
   })
@@ -341,12 +342,31 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
 
   const allNodes = useMemo(() => [...cloudNodes, ...pendingNodes], [cloudNodes, pendingNodes])
 
+  // Compute highlighted set for focus mode
+  const highlightedIds = useMemo<Set<string> | null>(() => {
+    if (!selectedId) return null
+    const rawEdges = buildTopologyEdges(allNodes)
+    const neighbours = new Set<string>([selectedId])
+    for (const e of rawEdges) {
+      if (e.source === selectedId) neighbours.add(e.target)
+      if (e.target === selectedId) neighbours.add(e.source)
+    }
+    return neighbours
+  }, [selectedId, allNodes])
+
   const flowNodes: Node[] = useMemo(
-    () => buildFlowNodes(allNodes, selectedId),
-    [allNodes, selectedId],
+    () => buildFlowNodes(allNodes, selectedId, highlightedIds),
+    [allNodes, selectedId, highlightedIds],
   )
 
-  const flowEdges: Edge[] = useMemo(() => buildTopologyEdges(allNodes), [allNodes])
+  const flowEdges: Edge[] = useMemo(() => {
+    const raw = buildTopologyEdges(allNodes)
+    if (!selectedId) return raw
+    return raw.map((e) => {
+      const incident = e.source === selectedId || e.target === selectedId
+      return incident ? e : { ...e, style: { ...(e.style ?? {}), opacity: 0.15 } }
+    })
+  }, [allNodes, selectedId])
 
   return (
     <ReactFlow

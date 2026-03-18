@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCloudStore } from '../store/cloud'
 import type { CloudNode } from '../types/cloud'
+import { fieldLabel } from '../utils/fieldLabels'
 
 interface InspectorProps {
   onDelete: (node: CloudNode) => void
@@ -73,7 +74,7 @@ export function Inspector({ onDelete, onEdit, onQuickAction, onAddRoute }: Inspe
                 { k: 'inUseBy',           v: `${(node.metadata.inUseBy as string[]).length} resource(s)` },
               ].map(({ k, v }) => (
                 <div key={k} className="mb-1.5">
-                  <div className="text-[7px]" style={{ color: 'var(--cb-text-muted)' }}>{k}</div>
+                  <div className="text-[7px]" title={k} style={{ color: 'var(--cb-text-muted)' }}>{fieldLabel(k)}</div>
                   <div className="text-[8px] break-all" style={{ color: 'var(--cb-text-secondary)' }}>{v ?? '—'}</div>
                 </div>
               ))}
@@ -135,14 +136,14 @@ export function Inspector({ onDelete, onEdit, onQuickAction, onAddRoute }: Inspe
                 METADATA
               </div>
               {[
-                { k: 'domainName',   v: node.metadata.domainName as string },
-                { k: 'origins',      v: `${(node.metadata.origins as unknown[]).length} origin(s)` },
-                { k: 'priceClass',   v: node.metadata.priceClass as string },
-                { k: 'certArn',      v: (node.metadata.certArn as string | undefined) ?? 'default' },
-                { k: 'rootObject',   v: (node.metadata.defaultRootObject as string) || '—' },
+                { k: 'domainName',        v: node.metadata.domainName as string },
+                { k: 'origins',           v: `${(node.metadata.origins as unknown[]).length} origin(s)` },
+                { k: 'priceClass',        v: node.metadata.priceClass as string },
+                { k: 'certArn',           v: (node.metadata.certArn as string | undefined) ?? 'default' },
+                { k: 'defaultRootObject', v: (node.metadata.defaultRootObject as string) || '—' },
               ].map(({ k, v }) => (
                 <div key={k} className="mb-1.5">
-                  <div className="text-[7px]" style={{ color: 'var(--cb-text-muted)' }}>{k}</div>
+                  <div className="text-[7px]" title={k} style={{ color: 'var(--cb-text-muted)' }}>{fieldLabel(k)}</div>
                   <div className="text-[8px] break-all" style={{ color: 'var(--cb-text-secondary)' }}>{v}</div>
                 </div>
               ))}
@@ -283,7 +284,7 @@ export function Inspector({ onDelete, onEdit, onQuickAction, onAddRoute }: Inspe
                   </div>
                   {Object.entries(node.metadata).slice(0, 6).map(([k, v]) => (
                     <div key={k} className="mb-1.5">
-                      <div className="text-[7px]" style={{ color: 'var(--cb-text-muted)' }}>{k}</div>
+                      <div className="text-[7px]" title={k} style={{ color: 'var(--cb-text-muted)' }}>{fieldLabel(k)}</div>
                       <div className="text-[8px] break-all" style={{ color: 'var(--cb-text-secondary)' }}>{String(v ?? '—')}</div>
                     </div>
                   ))}

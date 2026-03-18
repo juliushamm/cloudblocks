@@ -158,6 +158,18 @@ export function GraphView({ onNodeContextMenu }: GraphViewProps){
     return map
   }, [allNodes])
 
+  // Compute highlighted set for focus mode
+  const highlightedIds = useMemo<Set<string> | null>(() => {
+    if (!selectedId) return null
+    const rawEdges = deriveEdges(allNodes)
+    const neighbours = new Set<string>([selectedId])
+    for (const e of rawEdges) {
+      if (e.source === selectedId) neighbours.add(e.target)
+      if (e.target === selectedId) neighbours.add(e.source)
+    }
+    return neighbours
+  }, [selectedId, allNodes])
+
   const flowNodes: Node[] = useMemo(
     () => allNodes.map((n, i) => {
       const vpc      = findVpcAncestor(n, byId)
@@ -188,14 +200,23 @@ export function GraphView({ onNodeContextMenu }: GraphViewProps){
           hasLambda: n.type === 'apigw-route' ? !!(n.metadata.lambdaArn) : undefined,
           // API Gateway container extra fields
           endpoint:  n.type === 'apigw' ? n.metadata.endpoint as string | undefined : undefined,
+          // Focus mode
+          dimmed:    highlightedIds !== null && !highlightedIds.has(n.id),
         },
         selected: n.id === selectedId,
       }
     }),
-    [allNodes, selectedId, byId, vpcColorMap],
+    [allNodes, selectedId, byId, vpcColorMap, highlightedIds],
   )
 
-  const flowEdges: Edge[] = useMemo(() => deriveEdges(allNodes), [allNodes])
+  const flowEdges: Edge[] = useMemo(() => {
+    const raw = deriveEdges(allNodes)
+    if (!selectedId) return raw
+    return raw.map((e) => {
+      const incident = e.source === selectedId || e.target === selectedId
+      return incident ? e : { ...e, style: { ...(e.style ?? {}), opacity: 0.15 } }
+    })
+  }, [allNodes, selectedId])
 
   return (
     <ReactFlow

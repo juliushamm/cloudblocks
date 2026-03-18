@@ -1,5 +1,5 @@
 import { create, createStore } from 'zustand'
-import type { CloudNode, ScanDelta, Settings } from '../types/cloud'
+import type { CloudNode, NodeStatus, ScanDelta, Settings } from '../types/cloud'
 import { applyTheme } from '../utils/applyTheme'
 
 export type { Settings }
@@ -14,6 +14,7 @@ interface CloudState {
   nodes:          CloudNode[]
   selectedNodeId: string | null
   scanStatus:     'idle' | 'scanning' | 'error'
+  lastScannedAt:  Date | null
   profile:        string
   region:         string
   view:           'topology' | 'graph'
@@ -50,6 +51,7 @@ export const useCloudStore = create<CloudState>((set) => ({
   nodes:          [],
   selectedNodeId: null,
   scanStatus:     'idle',
+  lastScannedAt:  null,
   profile:        'default',
   region:         'us-east-1',
   view:           'topology',
@@ -67,8 +69,14 @@ export const useCloudStore = create<CloudState>((set) => ({
       const nodeMap = new Map(state.nodes.map((n) => [n.id, n]))
       for (const n of delta.added)   nodeMap.set(n.id, n)
       for (const n of delta.changed) nodeMap.set(n.id, n)
-      for (const id of delta.removed) nodeMap.delete(id)
-      return { nodes: Array.from(nodeMap.values()) }
+      // Skip removal of nodes in a transitional state to avoid scan-race flicker
+      const protectedStatuses: NodeStatus[] = ['creating', 'deleting']
+      const safeToRemove = delta.removed.filter(id => {
+        const existing = state.nodes.find(n => n.id === id)
+        return !existing || !protectedStatuses.includes(existing.status)
+      })
+      for (const id of safeToRemove) nodeMap.delete(id)
+      return { nodes: Array.from(nodeMap.values()), lastScannedAt: new Date() }
     }),
 
   selectNode:    (id)      => set({ selectedNodeId: id }),
@@ -113,6 +121,7 @@ export function createCloudStore() {
     nodes:          [],
     selectedNodeId: null,
     scanStatus:     'idle',
+    lastScannedAt:  null,
     profile:        'default',
     region:         'us-east-1',
     view:           'topology',
@@ -130,8 +139,14 @@ export function createCloudStore() {
         const nodeMap = new Map(state.nodes.map((n) => [n.id, n]))
         for (const n of delta.added)   nodeMap.set(n.id, n)
         for (const n of delta.changed) nodeMap.set(n.id, n)
-        for (const id of delta.removed) nodeMap.delete(id)
-        return { nodes: Array.from(nodeMap.values()) }
+        // Skip removal of nodes in a transitional state to avoid scan-race flicker
+        const protectedStatuses: NodeStatus[] = ['creating', 'deleting']
+        const safeToRemove = delta.removed.filter(id => {
+          const existing = state.nodes.find(n => n.id === id)
+          return !existing || !protectedStatuses.includes(existing.status)
+        })
+        for (const id of safeToRemove) nodeMap.delete(id)
+        return { nodes: Array.from(nodeMap.values()), lastScannedAt: new Date() }
       }),
 
     selectNode:    (id)      => set({ selectedNodeId: id }),

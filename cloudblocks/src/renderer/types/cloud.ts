@@ -1,4 +1,4 @@
-export type NodeStatus = 'running' | 'stopped' | 'pending' | 'error' | 'unknown' | 'creating'
+export type NodeStatus = 'running' | 'stopped' | 'pending' | 'error' | 'unknown' | 'creating' | 'deleting'
 
 export type NodeType =
   | 'ec2'

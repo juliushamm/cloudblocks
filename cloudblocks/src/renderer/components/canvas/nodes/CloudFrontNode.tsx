@@ -1,16 +1,20 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { NodeStatus } from '../../../types/cloud'
 
-const STATUS_COLORS: Record<NodeStatus, string> = {
-  running:  '#28c840',
-  stopped:  '#ff5f57',
-  pending:  '#febc2e',
-  error:    '#ff5f57',
-  unknown:  '#666666',
-  creating: '#febc2e',
-}
-
 const BORDER_COLOR = '#a78bfa'   // CloudFront: violet / edge purple
+
+function statusStripeColor(status: NodeStatus): string {
+  switch (status) {
+    case 'running':  return 'var(--cb-success, #22c55e)'
+    case 'stopped':  return 'var(--cb-text-muted, #6b7280)'
+    case 'pending':
+    case 'creating': return 'var(--cb-warning, #f59e0b)'
+    case 'error':
+    case 'deleting': return 'var(--cb-error, #ef4444)'
+    case 'unknown':
+    default:         return 'var(--cb-border, #374151)'
+  }
+}
 
 interface CloudFrontNodeData {
   label:  string
@@ -19,7 +23,7 @@ interface CloudFrontNodeData {
 
 export function CloudFrontNode({ data, selected }: NodeProps) {
   const d = data as unknown as CloudFrontNodeData
-  const statusColor = STATUS_COLORS[d.status] ?? '#666'
+  const stripeColor = statusStripeColor(d.status)
 
   return (
     <div
@@ -28,10 +32,11 @@ export function CloudFrontNode({ data, selected }: NodeProps) {
       style={{
         background: 'var(--cb-bg-panel)',
         border:     `${selected ? '2px' : '1px'} solid ${BORDER_COLOR}`,
+        borderLeft: `3px solid ${stripeColor}`,
         boxShadow:  selected ? `0 0 10px ${BORDER_COLOR}55` : 'none',
         fontFamily: 'monospace',
         minWidth:   130,
-        padding:    '6px 10px 6px 10px',
+        padding:    '6px 10px 6px 8px',
       }}
     >
       <Handle type="target" position={Position.Top}    style={{ opacity: 0 }} />
@@ -39,18 +44,13 @@ export function CloudFrontNode({ data, selected }: NodeProps) {
       <Handle type="target" position={Position.Left}   style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Right}  style={{ opacity: 0 }} />
 
-      <div className="flex items-center justify-between mb-1">
+      <div className="mb-1">
         <span
           className="text-[9px] font-bold tracking-wider"
           style={{ color: BORDER_COLOR, opacity: 0.85 }}
         >
           CF
         </span>
-        <span
-          data-status={d.status}
-          className="w-2 h-2 rounded-full flex-shrink-0"
-          style={{ background: statusColor }}
-        />
       </div>
 
       <div

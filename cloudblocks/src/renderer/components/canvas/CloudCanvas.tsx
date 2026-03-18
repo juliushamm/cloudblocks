@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ReactFlowProvider, useReactFlow } from '@xyflow/react'
 import { useCloudStore } from '../../store/cloud'
 import { TopologyView } from './TopologyView'
 import { GraphView } from './GraphView'
 import { CanvasContextMenu } from './CanvasContextMenu'
 import type { CloudNode } from '../../types/cloud'
+
+function relativeTime(date: Date): string {
+  const secs = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (secs < 60) return `${secs}s ago`
+  if (secs < 3600) return `${Math.floor(secs / 60)}m ago`
+  return `${Math.floor(secs / 3600)}h ago`
+}
 
 interface Props {
   onScan: () => void
@@ -14,10 +21,21 @@ interface Props {
 /** Inner component — must live inside ReactFlowProvider to access useReactFlow hooks. */
 function CanvasInner({ onScan, onNodeContextMenu }: Props){
   const { fitView, zoomIn, zoomOut } = useReactFlow()
-  const view       = useCloudStore((s) => s.view)
-  const setView    = useCloudStore((s) => s.setView)
-  const scanStatus = useCloudStore((s) => s.scanStatus)
+  const view          = useCloudStore((s) => s.view)
+  const setView       = useCloudStore((s) => s.setView)
+  const scanStatus    = useCloudStore((s) => s.scanStatus)
+  const lastScannedAt = useCloudStore((s) => s.lastScannedAt)
+  const nodes         = useCloudStore((s) => s.nodes)
+  const profile       = useCloudStore((s) => s.profile)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const [, forceUpdate] = useState(0)
+
+  // Refresh the relative timestamp every 10 seconds
+  useEffect(() => {
+    if (!lastScannedAt) return
+    const id = setInterval(() => forceUpdate(n => n + 1), 10_000)
+    return () => clearInterval(id)
+  }, [lastScannedAt])
 
   const btnBase = { fontFamily: 'monospace', fontSize: '9px', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer' }
 
@@ -38,6 +56,12 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
         >
           {scanStatus === 'scanning' ? '⟳ Scanning…' : '⟳ Scan'}
         </button>
+
+        {lastScannedAt && (
+          <span style={{ fontSize: 11, color: 'var(--cb-text-muted)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+            Scanned {relativeTime(lastScannedAt)}
+          </span>
+        )}
 
         <div className="w-px h-3.5 bg-gray-700" />
 
@@ -69,6 +93,53 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
         ? <TopologyView onNodeContextMenu={onNodeContextMenu} />
         : <GraphView onNodeContextMenu={onNodeContextMenu} />
       }
+
+      {/* Empty state overlay — shown when no nodes, not scanning, and a profile is connected */}
+      {nodes.length === 0 && scanStatus !== 'scanning' && profile && (
+        <div
+          style={{
+            position:        'absolute',
+            inset:           0,
+            display:         'flex',
+            alignItems:      'center',
+            justifyContent:  'center',
+            pointerEvents:   'none',
+            zIndex:          5,
+          }}
+        >
+          <div
+            style={{
+              textAlign:   'center',
+              color:       'var(--cb-text-muted)',
+              fontFamily:  'monospace',
+              pointerEvents: 'auto',
+            }}
+          >
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🌩</div>
+            <div style={{ fontSize: 16, color: 'var(--cb-text)', marginBottom: 8, fontWeight: 600 }}>
+              No resources yet
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--cb-text-muted)', maxWidth: 280, marginBottom: 20, lineHeight: 1.6 }}>
+              Connect an AWS profile and scan your account to visualize your infrastructure.
+            </div>
+            <button
+              onClick={onScan}
+              style={{
+                fontFamily:   'monospace',
+                fontSize:     '11px',
+                borderRadius: '4px',
+                padding:      '4px 16px',
+                cursor:       'pointer',
+                background:   'var(--cb-bg-elevated)',
+                border:       '1px solid var(--cb-accent)',
+                color:        'var(--cb-accent)',
+              }}
+            >
+              Scan Account
+            </button>
+          </div>
+        </div>
+      )}
 
       {contextMenu && (
         <CanvasContextMenu

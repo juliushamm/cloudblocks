@@ -1,13 +1,17 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { NodeStatus, NodeType } from '../../../types/cloud'
 
-const STATUS_COLORS: Record<NodeStatus, string> = {
-  running:  '#28c840',
-  stopped:  '#ff5f57',
-  pending:  '#febc2e',
-  error:    '#ff5f57',
-  unknown:  '#666666',
-  creating: '#febc2e',
+function statusStripeColor(status: NodeStatus): string {
+  switch (status) {
+    case 'running':  return 'var(--cb-success, #22c55e)'
+    case 'stopped':  return 'var(--cb-text-muted, #6b7280)'
+    case 'pending':
+    case 'creating': return 'var(--cb-warning, #f59e0b)'
+    case 'error':
+    case 'deleting': return 'var(--cb-error, #ef4444)'
+    case 'unknown':
+    default:         return 'var(--cb-border, #374151)'
+  }
 }
 
 const TYPE_BORDER: Record<NodeType, string> = {
@@ -53,7 +57,7 @@ interface ResourceNodeData {
 export function ResourceNode({ data, selected }: NodeProps) {
   const d = data as unknown as ResourceNodeData
   const borderColor = TYPE_BORDER[d.nodeType] ?? '#555'
-  const statusColor = STATUS_COLORS[d.status] ?? '#666'
+  const stripeColor = statusStripeColor(d.status)
   const typeLabel   = TYPE_LABEL[d.nodeType] ?? d.nodeType.toUpperCase()
 
   return (
@@ -63,10 +67,11 @@ export function ResourceNode({ data, selected }: NodeProps) {
       style={{
         background:  'var(--cb-bg-panel)',
         border:      `${selected ? '2px' : '1px'} solid ${borderColor}`,
+        borderLeft:  `3px solid ${stripeColor}`,
         boxShadow:   selected ? `0 0 10px ${borderColor}55` : 'none',
         fontFamily:  'monospace',
         minWidth:    130,
-        padding:     '6px 10px 6px 10px',
+        padding:     '6px 10px 6px 8px',
       }}
     >
       <Handle type="target" position={Position.Top}    style={{ opacity: 0 }} />
@@ -74,7 +79,7 @@ export function ResourceNode({ data, selected }: NodeProps) {
       <Handle type="target" position={Position.Left}   style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Right}  style={{ opacity: 0 }} />
 
-      {/* Type label + status dot on same row */}
+      {/* Type label row */}
       <div className="flex items-center justify-between mb-1">
         <span
           className="text-[9px] font-bold tracking-wider"
@@ -82,11 +87,6 @@ export function ResourceNode({ data, selected }: NodeProps) {
         >
           {typeLabel}
         </span>
-        <span
-          data-status={d.status}
-          className="w-2 h-2 rounded-full flex-shrink-0"
-          style={{ background: statusColor }}
-        />
       </div>
 
       {/* Resource label */}

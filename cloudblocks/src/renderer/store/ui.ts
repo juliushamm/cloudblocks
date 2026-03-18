@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+const TOAST_DURATION_MS = 2500
+
 type ViewKey = 'topology' | 'graph'
 
 interface SavedView {
@@ -26,6 +28,8 @@ interface UIState {
   loadView:        (slot: number, view: ViewKey, fitViewFn: () => void) => void
 }
 
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+
 export const useUIStore = create<UIState>((set, get) => ({
   view:           'topology',
   selectedNodeId: null,
@@ -39,8 +43,12 @@ export const useUIStore = create<UIState>((set, get) => ({
   selectNode:      (id)   => set({ selectedNodeId: id }),
   setActiveCreate: (val)  => set({ activeCreate: val }),
   showToast: (message, type = 'success') => {
+    if (toastTimer) clearTimeout(toastTimer)
     set({ toast: { message, type } })
-    setTimeout(() => set({ toast: null }), 2500)
+    toastTimer = setTimeout(() => {
+      set({ toast: null })
+      toastTimer = null
+    }, TOAST_DURATION_MS)
   },
   clearToast: () => set({ toast: null }),
 
@@ -53,6 +61,7 @@ export const useUIStore = create<UIState>((set, get) => ({
     })),
 
   saveView: (slot, name, view) => {
+    if (slot < 0 || slot > 3) return
     const positions = { ...get().nodePositions[view] }
     set((s) => {
       const savedViews = [...s.savedViews] as Array<SavedView | null>
@@ -62,6 +71,7 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
 
   loadView: (slot, view, fitViewFn) => {
+    if (slot < 0 || slot > 3) return
     const saved = get().savedViews[slot]
     if (!saved) return
     set((s) => ({

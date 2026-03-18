@@ -9,6 +9,7 @@ import { describeLoadBalancers } from './services/alb'
 import { listCertificates } from './services/acm'
 import { listDistributions } from './services/cloudfront'
 import { listApis } from './services/apigw'
+import { listInternetGateways } from './services/igw'
 
 /**
  * Contract every cloud provider plugin must satisfy.
@@ -38,6 +39,7 @@ export const awsProvider: CloudProvider = {
       listCertificates(clients.acm),
       listDistributions(clients.cloudfront),
       listApis(clients.apigw, region),
+      listInternetGateways(clients.ec2, region).catch(() => [] as CloudNode[]),
     ])
     return results.flat()
   },

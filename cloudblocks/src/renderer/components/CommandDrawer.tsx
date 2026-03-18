@@ -41,6 +41,11 @@ export function CommandDrawer(){
     const offDone = window.cloudblocks.onCliDone((result) => {
       setRunning(false)
       setExitCode(result.code)
+      if (result.code === 0) {
+        useUIStore.getState().showToast('Done')
+      } else {
+        useUIStore.getState().showToast('Command failed', 'error')
+      }
     })
     return () => { offOutput(); offDone() }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -56,7 +61,10 @@ export function CommandDrawer(){
       try {
         const result = await window.cloudblocks.runCli(pendingCommand)
         if (result.code === 0) {
+          useUIStore.getState().showToast('Done')
           await window.cloudblocks.startScan()
+        } else {
+          useUIStore.getState().showToast('Command failed', 'error')
         }
       } finally {
         setRunning(false)

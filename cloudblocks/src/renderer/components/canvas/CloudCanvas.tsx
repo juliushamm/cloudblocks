@@ -5,6 +5,7 @@ import { useUIStore } from '../../store/ui'
 import { TopologyView } from './TopologyView'
 import { GraphView } from './GraphView'
 import { CanvasContextMenu } from './CanvasContextMenu'
+import { CanvasToast } from '../CanvasToast'
 import type { CloudNode } from '../../types/cloud'
 
 function relativeTime(date: Date): string {
@@ -159,6 +160,8 @@ function CanvasInner({ onScan, onNodeContextMenu }: Props){
           onClose={() => setContextMenu(null)}
         />
       )}
+
+      <CanvasToast />
     </div>
   )
 }

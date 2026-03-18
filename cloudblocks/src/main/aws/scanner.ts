@@ -28,7 +28,11 @@ export function computeDelta(prev: CloudNode[], next: CloudNode[]): ScanDelta {
       added.push(node)
     } else {
       const p = prevMap.get(id)!
-      if (p.status !== node.status || p.label !== node.label) {
+      if (
+        p.status !== node.status ||
+        p.label  !== node.label  ||
+        JSON.stringify(p.metadata) !== JSON.stringify(node.metadata)
+      ) {
         changed.push(node)
       }
     }

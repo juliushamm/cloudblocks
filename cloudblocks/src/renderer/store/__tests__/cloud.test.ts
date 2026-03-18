@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useCloudStore, createCloudStore } from '../cloud'
 import { useCliStore } from '../cli'
 import { useUIStore } from '../ui'
-import type { Theme } from '../../types/cloud'
+import type { Theme, NodeType } from '../../types/cloud'
 
 beforeEach(() => {
   useCloudStore.setState({
@@ -115,6 +115,23 @@ describe('activeCreate', () => {
     useUIStore.getState().setActiveCreate({ resource: 'vpc', view: 'topology' })
     useUIStore.getState().setActiveCreate(null)
     expect(useUIStore.getState().activeCreate).toBeNull()
+  })
+})
+
+describe('NodeType union', () => {
+  it('NodeType includes sqs', () => {
+    const t: NodeType = 'sqs'
+    expect(t).toBeTruthy()
+  })
+
+  it('NodeType includes secret', () => {
+    const t: NodeType = 'secret'
+    expect(t).toBeTruthy()
+  })
+
+  it('NodeType includes ecr-repo', () => {
+    const t: NodeType = 'ecr-repo'
+    expect(t).toBeTruthy()
   })
 })
 

@@ -14,6 +14,9 @@ export type NodeType =
   | 'cloudfront'
   | 'apigw'
   | 'apigw-route'
+  | 'sqs'
+  | 'secret'
+  | 'ecr-repo'
 
 export interface CloudNode {
   id: string

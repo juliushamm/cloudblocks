@@ -2,14 +2,8 @@ import { BrowserWindow } from 'electron'
 import { IPC } from '../ipc/channels'
 import type { AwsClients } from './client'
 import type { CloudNode, ScanDelta } from '../../renderer/types/cloud'
-import { describeInstances, describeVpcs, describeSubnets, describeSecurityGroups, describeKeyPairs } from './services/ec2'
-import { describeDBInstances } from './services/rds'
-import { listBuckets } from './services/s3'
-import { listFunctions } from './services/lambda'
-import { describeLoadBalancers } from './services/alb'
-import { listCertificates } from './services/acm'
-import { listDistributions } from './services/cloudfront'
-import { listApis } from './services/apigw'
+import { describeKeyPairs } from './services/ec2'
+import { awsProvider } from './provider'
 
 const POLL_INTERVAL_MS = 30_000
 
@@ -75,21 +69,7 @@ export class ResourceScanner {
     this.window.webContents.send(IPC.SCAN_STATUS, 'scanning')
 
     try {
-      const [instances, vpcs, subnets, sgs, dbs, buckets, fns, lbs, certs, distributions, apigwNodes] = await Promise.all([
-        describeInstances(this.clients.ec2, this.region),
-        describeVpcs(this.clients.ec2, this.region),
-        describeSubnets(this.clients.ec2, this.region),
-        describeSecurityGroups(this.clients.ec2, this.region),
-        describeDBInstances(this.clients.rds, this.region),
-        listBuckets(this.clients.s3, this.region),
-        listFunctions(this.clients.lambda, this.region),
-        describeLoadBalancers(this.clients.alb, this.region),
-        listCertificates(this.clients.acm),
-        listDistributions(this.clients.cloudfront),
-        listApis(this.clients.apigw, this.region),
-      ])
-
-      const nextNodes = [...instances, ...vpcs, ...subnets, ...sgs, ...dbs, ...buckets, ...fns, ...lbs, ...certs, ...distributions, ...apigwNodes]
+      const nextNodes = await awsProvider.scan(this.clients, this.region)
       const delta = computeDelta(this.currentNodes, nextNodes)
 
       this.currentNodes = nextNodes

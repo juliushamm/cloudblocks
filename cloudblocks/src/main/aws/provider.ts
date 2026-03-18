@@ -12,6 +12,7 @@ import { listApis } from './services/apigw'
 import { listInternetGateways } from './services/igw'
 import { listQueues } from './services/sqs'
 import { listSecrets } from './services/secrets'
+import { listRepositories } from './services/ecr'
 
 /**
  * Contract every cloud provider plugin must satisfy.
@@ -44,6 +45,7 @@ export const awsProvider: CloudProvider = {
       listInternetGateways(clients.ec2, region).catch(() => [] as CloudNode[]),
       listQueues(clients.sqs, region).catch(() => [] as CloudNode[]),
       listSecrets(clients.secrets, region).catch(() => [] as CloudNode[]),
+      listRepositories(clients.ecr, region).catch(() => [] as CloudNode[]),
     ])
     return results.flat()
   },

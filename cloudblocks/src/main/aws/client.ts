@@ -8,6 +8,7 @@ import { CloudFrontClient } from '@aws-sdk/client-cloudfront'
 import { ApiGatewayV2Client } from '@aws-sdk/client-apigatewayv2'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { ECRClient } from '@aws-sdk/client-ecr'
 
 export interface AwsClients {
   ec2: EC2Client
@@ -20,6 +21,7 @@ export interface AwsClients {
   apigw: ApiGatewayV2Client
   sqs: SQSClient
   secrets: SecretsManagerClient
+  ecr: ECRClient
 }
 
 // Creates a fresh set of AWS SDK clients for the given profile + region.
@@ -42,5 +44,6 @@ export function createClients(profile: string, region: string): AwsClients {
     apigw:      new ApiGatewayV2Client(config),
     sqs:        new SQSClient(config),
     secrets:    new SecretsManagerClient(config),
+    ecr:        new ECRClient(config),
   }
 }

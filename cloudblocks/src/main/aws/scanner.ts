@@ -25,6 +25,8 @@ export function computeDelta(prev: CloudNode[], next: CloudNode[]): ScanDelta {
       if (
         p.status !== node.status ||
         p.label  !== node.label  ||
+        // NOTE: JSON.stringify is key-order-sensitive; service functions must
+        // return stable object literals (not spread/merge) to avoid false positives.
         JSON.stringify(p.metadata) !== JSON.stringify(node.metadata)
       ) {
         changed.push(node)
@@ -76,7 +78,10 @@ export class ResourceScanner {
       this.window.webContents.send(IPC.SCAN_DELTA, delta)
       this.window.webContents.send(IPC.SCAN_STATUS, 'idle')
 
-      // Also scan key pairs and broadcast to renderer
+      // Key pairs are AWS-specific and consumed by the renderer's create-node
+      // flow (not part of the topology graph), so they live outside awsProvider.
+      // TODO(M6): if ResourceScanner becomes provider-agnostic, move this into
+      //           a provider-level `scanExtras()` hook or guard with provider.id.
       const keyPairs = await describeKeyPairs(this.clients.ec2)
       this.window.webContents.send(IPC.SCAN_KEYPAIRS, keyPairs)
 

@@ -13,6 +13,10 @@ import { listApis } from './services/apigw'
 /**
  * Contract every cloud provider plugin must satisfy.
  * M6 will add AzureProvider, GcpProvider implementing this.
+ *
+ * TODO(M6): `scan` currently accepts `AwsClients` which pins the interface to AWS.
+ * Before adding a second provider, change to constructor injection so the interface
+ * becomes `scan(region: string): Promise<CloudNode[]>` with clients bound at creation.
  */
 export interface CloudProvider {
   readonly id: string

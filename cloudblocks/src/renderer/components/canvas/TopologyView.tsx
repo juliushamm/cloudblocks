@@ -1,5 +1,5 @@
-import { useMemo, useCallback } from 'react'
-import { ReactFlow, Background, MiniMap, useReactFlow, type Node, type Edge } from '@xyflow/react'
+import { useMemo, useCallback, useRef, useEffect } from 'react'
+import { ReactFlow, Background, MiniMap, useReactFlow, type Node, type Edge, type NodeChange } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCloudStore } from '../../store/cloud'
 import { useUIStore } from '../../store/ui'
@@ -343,7 +343,9 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
   const selectedId      = useUIStore((s) => s.selectedNodeId)
   const setActiveCreate = useUIStore((s) => s.setActiveCreate)
   const view            = useUIStore((s) => s.view)
-  const { screenToFlowPosition } = useReactFlow()
+  const { screenToFlowPosition, fitView } = useReactFlow()
+  const nodePositions   = useUIStore((s) => s.nodePositions)
+  const setNodePosition = useUIStore((s) => s.setNodePosition)
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -372,10 +374,41 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
     return neighbours
   }, [selectedId, allNodes])
 
-  const flowNodes: Node[] = useMemo(
-    () => buildFlowNodes(allNodes, selectedId, highlightedIds),
-    [allNodes, selectedId, highlightedIds],
-  )
+  const topologyPositions = nodePositions.topology
+
+  const flowNodes: Node[] = useMemo(() => {
+    const raw = buildFlowNodes(allNodes, selectedId, highlightedIds)
+    return raw.map((n) => {
+      if (n.extent === 'parent') return n  // never override child nodes
+      const saved = topologyPositions[n.id]
+      return saved ? { ...n, position: saved } : n
+    })
+  }, [allNodes, selectedId, highlightedIds, topologyPositions])
+
+  // One-time fitView when nodes first appear (or re-appear after dropping to 0)
+  const hasFitted = useRef(false)
+  useEffect(() => {
+    if (cloudNodes.length === 0) {
+      hasFitted.current = false
+      return
+    }
+    if (!hasFitted.current) {
+      hasFitted.current = true
+      fitView({ duration: 300 })
+    }
+  }, [cloudNodes.length, fitView])
+
+  // Persist drag-end positions for top-level nodes only.
+  // Child nodes carry extent: 'parent' in flowNodes — look up by id to check before saving.
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    for (const change of changes) {
+      if (change.type === 'position' && change.position && !change.dragging) {
+        const rfNode = flowNodes.find((n) => n.id === change.id)
+        if (!rfNode || rfNode.extent === 'parent') continue
+        setNodePosition('topology', change.id, change.position)
+      }
+    }
+  }, [setNodePosition, flowNodes])
 
   const flowEdges: Edge[] = useMemo(() => {
     const raw = buildTopologyEdges(allNodes)
@@ -400,7 +433,10 @@ export function TopologyView({ onNodeContextMenu }: TopologyViewProps){
       }}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      fitView
+      onNodesChange={onNodesChange}
+      panOnScroll
+      minZoom={0.1}
+      maxZoom={2}
       style={{ background: 'var(--cb-canvas-bg)' }}
     >
       <Background color="var(--cb-canvas-grid)" gap={20} />

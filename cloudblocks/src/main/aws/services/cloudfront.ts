@@ -41,7 +41,6 @@ export async function listDistributions(client: CloudFrontClient): Promise<Cloud
           origins,
           certArn:           certArn ?? undefined,
           priceClass:        dist.PriceClass ?? 'PriceClass_All',
-          defaultRootObject: dist.DefaultRootObject ?? '',
         },
       }
     })

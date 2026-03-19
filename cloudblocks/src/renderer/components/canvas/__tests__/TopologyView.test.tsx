@@ -4,6 +4,7 @@ import { TopologyView } from '../TopologyView'
 import { useCloudStore } from '../../../store/cloud'
 import { useUIStore } from '../../../store/ui'
 import type { NodeChange } from '@xyflow/react'
+import type { CloudNode } from '../../../types/cloud'
 
 const mockFitView = vi.fn()
 let capturedOnNodesChange: ((changes: NodeChange[]) => void) | undefined
@@ -23,8 +24,8 @@ vi.mock('@xyflow/react', async (importOriginal) => {
   }
 })
 
-const baseVpc = (id: string) => ({
-  id, type: 'vpc' as const, label: id, status: 'running' as const,
+const baseVpc = (id: string): CloudNode => ({
+  id, type: 'vpc', label: id, status: 'running',
   region: 'us-east-1', metadata: {},
 })
 

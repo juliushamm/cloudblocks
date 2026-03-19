@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { GraphView } from '../GraphView'
 import { useCloudStore } from '../../../store/cloud'
 import { useUIStore } from '../../../store/ui'
+import type { CloudNode } from '../../../types/cloud'
 
 const mockFitView = vi.fn()
 
@@ -10,7 +11,7 @@ vi.mock('@xyflow/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@xyflow/react')>()
   return {
     ...actual,
-    ReactFlow: (_props: unknown) => <div data-testid="react-flow" />,
+    ReactFlow: () => <div data-testid="react-flow" />,
     useReactFlow: () => ({
       fitView: mockFitView,
       screenToFlowPosition: vi.fn().mockReturnValue({ x: 0, y: 0 }),
@@ -18,8 +19,8 @@ vi.mock('@xyflow/react', async (importOriginal) => {
   }
 })
 
-const vpc = (id: string) => ({
-  id, type: 'vpc' as const, label: id, status: 'running' as const,
+const vpc = (id: string): CloudNode => ({
+  id, type: 'vpc', label: id, status: 'running',
   region: 'us-east-1', metadata: {},
 })
 

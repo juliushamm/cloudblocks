@@ -21,7 +21,10 @@
       "mcp__obsidian__obsidian_get_file_contents",
       "mcp__obsidian__obsidian_append_content",
       "mcp__obsidian__obsidian_simple_search",
-      "mcp__obsidian__obsidian_patch_content"
+      "mcp__obsidian__obsidian_patch_content",
+      "WebFetch(domain:aws.amazon.com)",
+      "WebSearch",
+      "WebFetch(domain:docs.localstack.cloud)"
     ]
   }
 }
